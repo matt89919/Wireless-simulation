@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 import os
 
 #from pygame.draw import rect
@@ -14,7 +15,11 @@ all = pygame.sprite.Group()
 cars = pygame.sprite.Group()
 bases = pygame.sprite.Group()
 
-basearr = [[0 for x in range(10)] for y in range(10)]
+basearr = [[[0 for k in range(2)] for j in range(10)] for i in range(10)]
+
+def path_loss(f,d):
+    pl=32.45+20*math.log(f,10)+20*math.log(d,10)
+    return pl
 
 def drawmap():
     screen.fill((255,255,255))
@@ -24,14 +29,25 @@ def drawmap():
         pygame.draw.line(screen,black, (50+i*60,50) , (50+i*60,650))
        
 class base(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self,x,y,f):
         pygame.sprite.Sprite.__init__(self)
         self.image=pygame.Surface((10,10))
         self.image.fill(blue)
         self.rect=self.image.get_rect()
         self.rect.center=self.get(x,y)
-        self.f=random.randint(100,1000)
-        print(f'init basestation at {self.rect.center}')
+        self.f=f
+        print(f'init basestation at {self.rect.center},frequency={self.f}')
+    '''  
+    def getdist(self):  
+        i=0
+        for car in cars:
+                x=(self.rect.centerx-car.rect.centerx) ** 2
+                y=(self.rect.centery-car.rect.centery) ** 2
+                self.dist[i]= (x+y) ** (1/2)
+                #print(f'dist to bs{i}={self.dist[i]}') 
+                pl=path_loss()
+                i+=1
+                '''
         
     def get(self,x,y):
         num=random.randint(0,3)
@@ -54,17 +70,30 @@ class car(pygame.sprite.Sprite):
         self.x=x
         self.y=y
         self.rect.center=((x,y))
-        self.dir=dir
+        self.dir=dir 
+        self.pl=[0 for i in range(len(bases.sprites()))]
+        self.getdist()      #also calculate path loss and put in self.pl[]
         
-        #self.speed=speed
-        
+    def getdist(self):
+        i=0
+        for bs in bases.sprites():
+            x=(self.rect.centerx-bs.rect.centerx) ** 2
+            y=(self.rect.centery-bs.rect.centery) ** 2
+            d= ((x+y) ** (1/2)) / km
+            #print(f'dist to bs{i}={self.dist[i]}')
+            #k=(bs.rect.centerx-80)/60
+            #print(bs.f)            
+            self.pl[i]=120-path_loss(bs.f,d)
+            #print(self.pl[i])
+            i+=1
+                   
     def update(self):
         #print(self.x,self.y)
         mx= round((self.x-50) %60 , 3)
         my= round((self.y-50) %60 , 3)
 
         #print(mx,my)
-        if (mx == 60.000 or mx == 0 ) and (my == 0 or my==60.000):
+        if (mx == 60.000 or mx == 0 ) and (my == 0 or my == 60.000):
             self.turn()
             
         if self.dir == 0:
@@ -81,6 +110,7 @@ class car(pygame.sprite.Sprite):
         self.rect.center=(self.x,self.y)
         if self.rect.centerx > 650 or self.rect.centery < 50 or self.rect.centerx < 50 or self.rect.centery > 650:
             self.kill()
+        #self.getdist()
         
     def turn(self):
         r=random.randint(1,33)
@@ -135,10 +165,12 @@ def initserver():
         for j in range(0,10):
             r=random.randint(1,11)
             if r==1:
-                basearr[i][j]=1
+                basearr[i][j][1]=1
+                f=random.randrange(100,1100,100)
+                basearr[i][j][1]=f
                 x = 50+i*60+30
                 y = 50+j*60+30
-                newbase = base(x,y)
+                newbase = base(x,y,f)
                 bases.add(newbase)
                 all.add(newbase)
                 
@@ -163,7 +195,8 @@ def newcar():
 
 #initialization      
 initserver()
-
+for i in range(60):
+    newcar()
 
 running=True
 
@@ -175,7 +208,7 @@ while running:
             running=False
             
             
-    newcar()        
+    #newcar()        
     drawmap()
     all.draw(screen)
     all.update()
