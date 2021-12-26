@@ -73,6 +73,10 @@ class car(pygame.sprite.Sprite):
         self.dir=dir 
         self.pl=[0 for i in range(len(bases.sprites()))]
         self.getdist()      #also calculate path loss and put in self.pl[]
+        self.connect_to=0  #0 means didnt conncet to bs
+        self.switch=-1      #-1 because init makes connect
+        self.besteffort()
+
         
     def getdist(self):
         i=0
@@ -110,53 +114,71 @@ class car(pygame.sprite.Sprite):
         self.rect.center=(self.x,self.y)
         if self.rect.centerx > 650 or self.rect.centery < 50 or self.rect.centerx < 50 or self.rect.centery > 650:
             self.kill()
-        #self.getdist()
+        self.getdist()
+        self.besteffort()
         
     def turn(self):
         r=random.randint(1,33)
-        print('turn')
+        #print('turn')
         ## dir=0=go up, 1=go left, 2=go right, 3=go down
         if r<=16:
             #no turn
             self.dir=self.dir
-            print('no turn')
+            #print('no turn')
             
         elif r==17:
             #turn back
             if self.dir==0:
                 self.dir=3
-            if self.dir==1:
+            elif self.dir==1:
                 self.dir=2
-            if self.dir==2:
+            elif self.dir==2:
                 self.dir=1
-            if self.dir==3:
+            elif self.dir==3:
                 self.dir=0
-            print('turn back')
+            #print('turn back')
                 
         elif r<=24:
             #turn left
             if self.dir==0:
                 self.dir=1
-            if self.dir==1:
+            elif self.dir==1:
                 self.dir=3
-            if self.dir==2:
+            elif self.dir==2:
                 self.dir=0
-            if self.dir==3:
+            elif self.dir==3:
                 self.dir=2   
-            print('turn left')        
+            #print('turn left')        
             
         else :
             #turn right
             if self.dir==0:
                 self.dir=2
-            if self.dir==1:
+            elif self.dir==1:
                 self.dir=0
-            if self.dir==2:
+            elif self.dir==2:
                 self.dir=3
-            if self.dir==3:
+            elif self.dir==3:
                 self.dir=1
-            print('turn right')
-                 
+            #print('turn right')
+
+    def besteffort(self):
+        max=0
+        b=0
+        previous=self.connect_to
+        for bs in bases:
+            if self.pl[b]>max:
+                max=self.pl[b]
+                self.connect_to=bs
+                b+=1
+                
+        if previous!=self.connect_to:
+            #print(f'connected to {self.connect_to.rect.center}')
+            self.switch+=1
+            #print(f'switch={self.switch}')
+                
+        
+                                
             
         
 
@@ -199,16 +221,21 @@ for i in range(60):
     newcar()
 
 running=True
-
+s=0
+ps=0
 #start simulation
 while running:
     clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
-            
-            
-    #newcar()        
+    ps=s     
+    s=0 
+    for c in cars:
+        s+=c.switch
+    if ps!=s:
+        print(f'switch time={s}')
+    newcar()        
     drawmap()
     all.draw(screen)
     all.update()
