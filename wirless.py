@@ -74,8 +74,8 @@ class car(pygame.sprite.Sprite):
         self.pl=[0 for i in range(len(bases.sprites()))]
         self.getdist()      #also calculate path loss and put in self.pl[]
         self.connect_to=0  #0 means didnt conncet to bs
-        self.switch=-1      #-1 because init makes connect
-        self.besteffort()
+        self.switch=0     
+        self.firstconnect()
 
         
     def getdist(self):
@@ -116,6 +116,8 @@ class car(pygame.sprite.Sprite):
             self.kill()
         self.getdist()
         self.besteffort()
+        #self.minimum_threshold()
+        #self.entropy()
         
     def turn(self):
         r=random.randint(1,33)
@@ -176,8 +178,65 @@ class car(pygame.sprite.Sprite):
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch+=1
             #print(f'switch={self.switch}')
+            
+    def minimum_threshold(self):
+        threshold=20
+        b=0
+        previous=self.connect_to
+        for bs in bases:
+            if self.connect_to==bs:
+                break
+            b+=1
+            
+        if self.pl[b] < 20:
+            max=0
+            b=0
+            for bs in bases:
+                if self.pl[b]>max:
+                    max=self.pl[b]
+                    self.connect_to=bs
+                    b+=1
+        else: return
                 
+        if previous!=self.connect_to:
+            #print(f'connected to {self.connect_to.rect.center}')
+            self.switch+=1
+            #print(f'switch={self.switch}')
+     
+    def entropy(self):
+        entropy=5
+        b=0
+        previous=self.connect_to
+        for bs in bases:
+            if self.connect_to==bs:
+                break
+            else: b+=1
+            
+        original=self.pl[b]
+        b=0
+        for bs in bases:
+            if self.pl[b] - original > entropy:
+                original=self.pl[b]
+                self.connect_to=bs
+                b+=1
+            
+                
+        if previous!=self.connect_to:
+            #print(f'connected to {self.connect_to.rect.center}')
+            self.switch+=1
+            #print(f'switch={self.switch}')           
         
+    def firstconnect(self):
+        max=0
+        b=0
+
+        for bs in bases:
+            if self.pl[b]>max:
+                max=self.pl[b]
+                self.connect_to=bs
+                b+=1
+                
+        self.switch=0
                                 
             
         
