@@ -115,9 +115,10 @@ class car(pygame.sprite.Sprite):
         if self.rect.centerx > 650 or self.rect.centery < 50 or self.rect.centerx < 50 or self.rect.centery > 650:
             self.kill()
         self.getdist()
-        self.besteffort()
+        #self.besteffort()
         #self.minimum_threshold()
         #self.entropy()
+        self.myalgo()
         
     def turn(self):
         r=random.randint(1,33)
@@ -188,7 +189,7 @@ class car(pygame.sprite.Sprite):
                 break
             b+=1
             
-        if self.pl[b] < 20:
+        if self.pl[b] < threshold:
             max=0
             b=0
             for bs in bases:
@@ -204,7 +205,7 @@ class car(pygame.sprite.Sprite):
             #print(f'switch={self.switch}')
      
     def entropy(self):
-        entropy=5
+        entropy=25
         b=0
         previous=self.connect_to
         for bs in bases:
@@ -225,6 +226,32 @@ class car(pygame.sprite.Sprite):
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch+=1
             #print(f'switch={self.switch}')           
+        
+    def myalgo(self):
+        entropy=10
+        threshold=50
+        b=0
+        previous=self.connect_to
+        for bs in bases:
+            if self.connect_to==bs:
+                break
+            else: b+=1
+            
+        original=self.pl[b]
+        if original > threshold:
+            return
+        b=0
+        for bs in bases:
+            if self.pl[b] - original > entropy:
+                original=self.pl[b]
+                self.connect_to=bs
+                b+=1
+            
+                
+        if previous!=self.connect_to:
+            #print(f'connected to {self.connect_to.rect.center}')
+            self.switch+=1
+            #print(f'switch={self.switch}')            
         
     def firstconnect(self):
         max=0
@@ -290,10 +317,12 @@ while running:
             running=False
     ps=s     
     s=0 
+    n=0
     for c in cars:
         s+=c.switch
+        n+=1
     if ps!=s:
-        print(f'switch time={s}')
+        print(f'switch time per car = {s/n}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
     newcar()        
     drawmap()
     all.draw(screen)
