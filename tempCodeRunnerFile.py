@@ -1,1 +1,1 @@
-#time is 4 time quiker
+self.switch

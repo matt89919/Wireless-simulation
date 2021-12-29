@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 from varieble import *
-from scipy.stats import poisson
+#from scipy.stats import poisson
 
 pygame.init()
 screen = pygame.display.set_mode((700,700))
@@ -73,20 +73,25 @@ class car(pygame.sprite.Sprite):
         self.y=y
         self.rect.center=((x,y))
         self.dir=dir 
-        self.pl=[0 for i in range(len(bases.sprites()))]
+        self.pl=[0 for i in range(0,len(bases)+1)]
         self.getdist()                              #also calculate path loss and put in self.pl[]
-        self.connect_to=0                           #0 means didnt conncet to bs
-        self.switch=0   
+        self.connect_to0=0                           #0 means didnt conncet to bs
+        self.connect_to1=0
+        self.connect_to2=0
+        self.connect_to3=0
+        self.switch0=0   
+        self.switch1=0
+        self.switch2=0
+        self.switch3=0
         self.iscalling=0 
         self.count=0
         self.n=float(np.random.normal(300,10,1))*60    #the call time of this car
         #self.firstconnect()
         self.call()
-
-        
+   
     def getdist(self):
         i=0
-        for bs in bases.sprites():
+        for bs in bases:
             x=(self.rect.centerx-bs.rect.centerx) ** 2
             y=(self.rect.centery-bs.rect.centery) ** 2
             d= ((x+y) ** (1/2)) / km
@@ -120,17 +125,13 @@ class car(pygame.sprite.Sprite):
         self.rect.center=(self.x,self.y)
         if self.rect.centerx > 650 or self.rect.centery < 50 or self.rect.centerx < 50 or self.rect.centery > 650:
             self.kill()
-            global swt
-            global dc
-            swt += self.switch
-            dc +=1
             
         self.getdist()
         if self.iscalling > 0:
             self.besteffort()           #algoalgo is here
-            #self.minimum_threshold()
-            #self.entropy()
-            #self.myalgo()
+            self.minimum_threshold()
+            self.entropy()
+            self.myalgo()
             self.count+=1
             if self.count>=self.n:
                 self.iscalling=0
@@ -188,26 +189,26 @@ class car(pygame.sprite.Sprite):
     def besteffort(self):
         max=0
         b=0
-        previous=self.connect_to
+        previous=self.connect_to0
         for bs in bases:
             if self.pl[b]>max:
                 max=self.pl[b]
-                self.connect_to=bs
+                self.connect_to0=bs
                 b+=1
                 
-        if previous!=self.connect_to:
+        if previous!=self.connect_to0:
             #print(f'connected to {self.connect_to.rect.center}')
-            self.switch+=1
+            self.switch0+=1
             #print(f'switch={self.switch}')
             
     def minimum_threshold(self):
-        threshold=20
+        threshold=25
         b=0
-        previous=self.connect_to
+        previous=self.connect_to1
         for bs in bases:
-            if self.connect_to==bs:
+            if self.connect_to1==bs:
                 break
-            b+=1
+            else :b+=1
             
         if self.pl[b] < threshold:
             max=0
@@ -215,21 +216,21 @@ class car(pygame.sprite.Sprite):
             for bs in bases:
                 if self.pl[b]>max:
                     max=self.pl[b]
-                    self.connect_to=bs
+                    self.connect_to1=bs
                     b+=1
         else: return
                 
-        if previous!=self.connect_to:
+        if previous!=self.connect_to1:
             #print(f'connected to {self.connect_to.rect.center}')
-            self.switch+=1
+            self.switch1+=1
             #print(f'switch={self.switch}')
      
     def entropy(self):
-        entropy=25
+        entropy=5
         b=0
-        previous=self.connect_to
+        previous=self.connect_to2
         for bs in bases:
-            if self.connect_to==bs:
+            if self.connect_to2==bs:
                 break
             else: b+=1
             
@@ -238,22 +239,22 @@ class car(pygame.sprite.Sprite):
         for bs in bases:
             if self.pl[b] - original > entropy:
                 original=self.pl[b]
-                self.connect_to=bs
+                self.connect_to2=bs
                 b+=1
             
                 
-        if previous!=self.connect_to:
+        if previous!=self.connect_to2:
             #print(f'connected to {self.connect_to.rect.center}')
-            self.switch+=1
+            self.switch2+=1
             #print(f'switch={self.switch}')           
         
     def myalgo(self):
         entropy=10
         threshold=50
         b=0
-        previous=self.connect_to
+        previous=self.connect_to3
         for bs in bases:
-            if self.connect_to==bs:
+            if self.connect_to3==bs:
                 break
             else: b+=1
             
@@ -264,13 +265,13 @@ class car(pygame.sprite.Sprite):
         for bs in bases:
             if self.pl[b] - original > entropy:
                 original=self.pl[b]
-                self.connect_to=bs
+                self.connect_to3=bs
                 b+=1
             
                 
-        if previous!=self.connect_to:
+        if previous!=self.connect_to3:
             #print(f'connected to {self.connect_to.rect.center}')
-            self.switch+=1
+            self.switch3+=1
             #print(f'switch={self.switch}')            
         
     def firstconnect(self):
@@ -280,21 +281,21 @@ class car(pygame.sprite.Sprite):
         for bs in bases:
             if self.pl[b]>max:
                 max=self.pl[b]
-                self.connect_to=bs
+                self.connect_to0=bs
+                self.connect_to1=bs
+                self.connect_to2=bs
+                self.connect_to3=bs
                 b+=1
-                
-        self.switch=0
                                 
     def call(self):
         #print(self.n)
         r=random.randint(0,3600*10)
         if r==0:
             self.iscalling=1
-            print("call")
+            #print("call")
             self.firstconnect()
         
         
-
 def initserver():
     for i in range(0,10):
         for j in range(0,10):
@@ -309,7 +310,6 @@ def initserver():
                 bases.add(newbase)
                 all.add(newbase)
                 
-
 def newcar():
     for i in range(0,4):
         for j in range(1,10):
@@ -330,26 +330,64 @@ def newcar():
 
 #initialization      
 initserver()
-
 running=True
-s=0
-ps=0
+s0=0
+ps0=0
+s1=0
+ps1=0
+s2=0
+ps2=0
+s3=0
+ps3=0
+
 #start simulation
 while running:
     clock.tick(240)         #time is 4 time quiker
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
-    ps=s     
-    s=0 
-    n=0
+            
+    ps0=s0     
+    s0=0 
+    n0=0
     for c in cars:
-        s+=c.switch
-        n+=1
-    s+=swt
-    n+=dc
-    if ps!=s:
-        print(f'switch time per car = {s/n}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+        s0+=c.switch0
+        n0+=1
+
+    if ps0!=s0:
+        print(f'switch time per car (best effort)= {s0/n0}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+    
+    ps1=s1     
+    s1=0 
+    n1=0
+    for c in cars:
+        s1+=c.switch1
+        n1+=1
+
+    if ps1!=s1:
+        print(f'switch time per car (minimum threshold)= {s1/n1}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+
+    ps2=s2     
+    s2=0 
+    n2=0
+    for c in cars:
+        s2+=c.switch2
+        n2+=1
+
+    if ps2!=s2:
+        print(f'switch time per car (entropy)= {s2/n2}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+
+    ps3=s3     
+    s3=0 
+    n3=0
+    for c in cars:
+        s3+=c.switch3
+        n3+=1
+
+    if ps3!=s3:
+        print(f'switch time per car (my algo)= {s3/n3}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+
+    
     newcar()        
     drawmap()
     all.draw(screen)
