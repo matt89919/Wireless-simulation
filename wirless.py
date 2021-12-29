@@ -1,9 +1,8 @@
 import pygame
 import random
 import math
-import os
+import numpy as np
 
-#from pygame.draw import rect
 from varieble import *
 from scipy.stats import poisson
 
@@ -14,6 +13,9 @@ clock = pygame.time.Clock()
 all = pygame.sprite.Group()
 cars = pygame.sprite.Group()
 bases = pygame.sprite.Group()
+
+swt = 0
+dc = 0
 
 basearr = [[[0 for k in range(2)] for j in range(10)] for i in range(10)]
 
@@ -72,10 +74,14 @@ class car(pygame.sprite.Sprite):
         self.rect.center=((x,y))
         self.dir=dir 
         self.pl=[0 for i in range(len(bases.sprites()))]
-        self.getdist()      #also calculate path loss and put in self.pl[]
-        self.connect_to=0  #0 means didnt conncet to bs
-        self.switch=0     
-        self.firstconnect()
+        self.getdist()                              #also calculate path loss and put in self.pl[]
+        self.connect_to=0                           #0 means didnt conncet to bs
+        self.switch=0   
+        self.iscalling=0 
+        self.count=0
+        self.n=float(np.random.normal(300,10,1))*60    #the call time of this car
+        #self.firstconnect()
+        self.call()
 
         
     def getdist(self):
@@ -114,11 +120,25 @@ class car(pygame.sprite.Sprite):
         self.rect.center=(self.x,self.y)
         if self.rect.centerx > 650 or self.rect.centery < 50 or self.rect.centerx < 50 or self.rect.centery > 650:
             self.kill()
+            global swt
+            global dc
+            swt += self.switch
+            dc +=1
+            
         self.getdist()
-        #self.besteffort()
-        #self.minimum_threshold()
-        #self.entropy()
-        self.myalgo()
+        if self.iscalling > 0:
+            self.besteffort()           #algoalgo is here
+            #self.minimum_threshold()
+            #self.entropy()
+            #self.myalgo()
+            self.count+=1
+            if self.count>=self.n:
+                self.iscalling=0
+                self.connect_to=0
+                print("release")
+                
+        else:
+            self.call()
         
     def turn(self):
         r=random.randint(1,33)
@@ -265,7 +285,14 @@ class car(pygame.sprite.Sprite):
                 
         self.switch=0
                                 
-            
+    def call(self):
+        #print(self.n)
+        r=random.randint(0,3600*10)
+        if r==0:
+            self.iscalling=1
+            print("call")
+            self.firstconnect()
+        
         
 
 def initserver():
@@ -287,7 +314,7 @@ def newcar():
     for i in range(0,4):
         for j in range(1,10):
             r=random.randint(0,10000)
-            #the prob. of per FPS after calculate is about 0.001283, so i take 0.0013 to simulate
+            #the prob. of per FPS(60) after calculate is about 0.001283, so i take 0.0013 to simulate
             if r<13:
                 if i==0:
                     n=car(51,50+60*j,2)
@@ -303,15 +330,13 @@ def newcar():
 
 #initialization      
 initserver()
-for i in range(60):
-    newcar()
 
 running=True
 s=0
 ps=0
 #start simulation
 while running:
-    clock.tick(60)
+    clock.tick(240)         #time is 4 time quiker
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
@@ -321,6 +346,8 @@ while running:
     for c in cars:
         s+=c.switch
         n+=1
+    s+=swt
+    n+=dc
     if ps!=s:
         print(f'switch time per car = {s/n}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
     newcar()        
