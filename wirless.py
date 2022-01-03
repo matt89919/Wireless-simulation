@@ -200,6 +200,10 @@ class car(pygame.sprite.Sprite):
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch0+=1
             #print(f'switch={self.switch}')
+        pygame.draw.line(screen,yellow, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,brown, self.rect.center , self.connect_to1.rect.center)
+        pygame.draw.line(screen,purple, self.rect.center , self.connect_to2.rect.center)
+        pygame.draw.line(screen,green, self.rect.center , self.connect_to3.rect.center)
             
     def minimum_threshold(self):
         threshold=25
@@ -224,6 +228,11 @@ class car(pygame.sprite.Sprite):
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch1+=1
             #print(f'switch={self.switch}')
+            
+        pygame.draw.line(screen,yellow, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,brown, self.rect.center , self.connect_to1.rect.center)
+        pygame.draw.line(screen,purple, self.rect.center , self.connect_to2.rect.center)
+        pygame.draw.line(screen,green, self.rect.center , self.connect_to3.rect.center)
      
     def entropy(self):
         entropy=5
@@ -246,7 +255,11 @@ class car(pygame.sprite.Sprite):
         if previous!=self.connect_to2:
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch2+=1
-            #print(f'switch={self.switch}')           
+            #print(f'switch={self.switch}') 
+        pygame.draw.line(screen,yellow, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,brown, self.rect.center , self.connect_to1.rect.center)
+        pygame.draw.line(screen,purple, self.rect.center , self.connect_to2.rect.center)
+        pygame.draw.line(screen,green, self.rect.center , self.connect_to3.rect.center)          
         
     def myalgo(self):
         entropy=10
@@ -272,7 +285,12 @@ class car(pygame.sprite.Sprite):
         if previous!=self.connect_to3:
             #print(f'connected to {self.connect_to.rect.center}')
             self.switch3+=1
-            #print(f'switch={self.switch}')            
+            #print(f'switch={self.switch}')  
+            
+        pygame.draw.line(screen,yellow, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,brown, self.rect.center , self.connect_to1.rect.center)
+        pygame.draw.line(screen,purple, self.rect.center , self.connect_to2.rect.center)
+        pygame.draw.line(screen,green, self.rect.center , self.connect_to3.rect.center)          
         
     def firstconnect(self):
         max=0
@@ -286,6 +304,11 @@ class car(pygame.sprite.Sprite):
                 self.connect_to2=bs
                 self.connect_to3=bs
                 b+=1
+                
+        pygame.draw.line(screen,yellow, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,brown, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,purple, self.rect.center , self.connect_to0.rect.center)
+        pygame.draw.line(screen,green, self.rect.center , self.connect_to0.rect.center)
                                 
     def call(self):
         #print(self.n)
