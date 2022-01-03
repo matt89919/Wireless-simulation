@@ -6,7 +6,7 @@
 ## best-effort algorithm's problem:
   the frequency of the base station is different, and the frequecy is the main cause of path loss, so when there is no enough cars, the switch time will be very low (also, cars always tend to connect to those base staitons who have low frequency)
 
-## min_threshold algorithm's problem:
+## minimum threshold algorithm's problem:
   the switch time is decided by the threshold value(this value has a very little range because the signal strength is too weak (and the number of bs is too small) )
 
 ## entropy algorithm's problem:
