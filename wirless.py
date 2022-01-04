@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 import numpy as np
+import os
 
 from varieble import *
 #from scipy.stats import poisson
@@ -362,55 +363,77 @@ s2=0
 ps2=0
 s3=0
 ps3=0
+count=0
 
 #start simulation
 while running:
     clock.tick(240)         #time is 4 time quiker
+    count+=1
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
+           
+    n=0
+    call=0
+    for c in cars:
+        n+=1
+        if c.iscalling==1:
+            call+=1
+        
+    if n!=0:
             
-    ps0=s0     
-    s0=0 
-    n0=0
-    for c in cars:
-        s0+=c.switch0
-        n0+=1
+        ps0=s0     
+        s0=0 
+        n0=0
+        for c in cars:
+            s0+=c.switch0
+            n0+=1
+        
+        
 
-    if ps0!=s0:
-        print(f'switch time per car (best effort)= {s0/n0}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
-    
-    ps1=s1     
-    s1=0 
-    n1=0
-    for c in cars:
-        s1+=c.switch1
-        n1+=1
+        #if ps0!=s0:
+        
+        
+        ps1=s1     
+        s1=0 
+        n1=0
+        for c in cars:
+            s1+=c.switch1
+            n1+=1
 
-    if ps1!=s1:
-        print(f'switch time per car (minimum threshold)= {s1/n1}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+        #if ps1!=s1:
+        
 
-    ps2=s2     
-    s2=0 
-    n2=0
-    for c in cars:
-        s2+=c.switch2
-        n2+=1
+        ps2=s2     
+        s2=0 
+        n2=0
+        for c in cars:
+            s2+=c.switch2
+            n2+=1
 
-    if ps2!=s2:
-        print(f'switch time per car (entropy)= {s2/n2}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+        #if ps2!=s2:
+        
 
-    ps3=s3     
-    s3=0 
-    n3=0
-    for c in cars:
-        s3+=c.switch3
-        n3+=1
+        ps3=s3     
+        s3=0 
+        n3=0
+        for c in cars:
+            s3+=c.switch3
+            n3+=1
 
-    if ps3!=s3:
-        print(f'switch time per car (my algo)= {s3/n3}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+        #if ps3!=s3:
+        
 
-    
+        if count==60:
+            os.system("cls")
+            count=0
+            print(f'number of cars : {n}')
+            print(f'number of calls : {call}')
+            print(f'switch time per car (my algo)= {s3/n3}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+            print(f'switch time per car (entropy)= {s2/n2}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+            print(f'switch time per car (minimum threshold)= {s1/n1}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+            print(f'switch time per car (best effort)= {s0/n0}')  #the total switch time of all cars in system(if the car got out, thw switch time cause by it will be deduct)
+            
     newcar()        
     drawmap()
     all.draw(screen)
