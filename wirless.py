@@ -207,7 +207,7 @@ class car(pygame.sprite.Sprite):
         pygame.draw.line(screen,green, self.rect.center , self.connect_to3.rect.center)
             
     def minimum_threshold(self):
-        threshold=25
+        threshold=20
         b=0
         previous=self.connect_to1
         for bs in bases:
@@ -264,7 +264,7 @@ class car(pygame.sprite.Sprite):
         
     def myalgo(self):
         entropy=10
-        threshold=50
+        threshold=30
         b=0
         previous=self.connect_to3
         for bs in bases:
@@ -298,7 +298,7 @@ class car(pygame.sprite.Sprite):
         b=0
 
         for bs in bases:
-            if self.pl[b]>max:
+            if self.pl[b]>=max:
                 max=self.pl[b]
                 self.connect_to0=bs
                 self.connect_to1=bs
